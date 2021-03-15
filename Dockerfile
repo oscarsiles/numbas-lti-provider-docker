@@ -12,7 +12,7 @@ RUN useradd -ms /bin/bash numbas_lti && usermod -a -G numbas_lti www-data
 RUN mkdir /srv/numbas-lti-media /srv/numbas-lti-static
 RUN chown -R numbas_lti:numbas_lti /srv/numbas-lti-media
 RUN chown -R www-data:www-data /srv/numbas-lti-static
-RUN chmod -R 770 /srv/numbas-lti-media /srv/numbas-lti-static
+RUN chmod -R 777 /srv/numbas-lti-media /srv/numbas-lti-static
 
 RUN python3 -m pip install asgi_redis psycopg2
 

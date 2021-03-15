@@ -8,6 +8,7 @@ services:
     volumes:
       - './files/nginx/templates:/etc/nginx/templates'
       - './files/ssl:/etc/ssl/numbas'
+      - numbas:/srv
   redis:
     image: redis
     ports:
