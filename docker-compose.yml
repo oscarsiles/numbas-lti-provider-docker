@@ -3,6 +3,8 @@ version: "3"
 services:
   nginx:
     image: nginx
+    depends_on:
+      - numbas
     ports:
       - "443:443"
     volumes:
