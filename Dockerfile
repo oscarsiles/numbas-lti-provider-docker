@@ -4,8 +4,7 @@ FROM python:3-slim-buster
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -y && apt-get upgrade -y && apt-get install -y --no-install-recommends apt-utils
-RUN apt-get update -y && apt-get install -y git build-essential redis-server \
-    postgresql postgresql-server-dev-all supervisor
+RUN apt-get update -y && apt-get install -y git build-essential postgresql-server-dev-all
 
 RUN useradd -ms /bin/bash numbas_lti && usermod -a -G numbas_lti www-data
 
@@ -22,9 +21,7 @@ RUN chown -R numbas_lti:numbas_lti /srv/numbas-lti-provider
 RUN chmod -R 770 /srv/numbas-lti-provider
 RUN python3 -m pip install -r /srv/numbas-lti-provider/requirements.txt
 
-COPY files/numbas-lti-provider/first_setup.py /srv/numbas-lti-provider/first_setup.py
-COPY files/numbas-lti-provider/numbas_lti.conf /etc/supervisor/conf.d/numbas_lti.conf
-COPY files/numbas-lti-provider/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY files/numbas-lti-provider/numbas-setup.py /srv/numbas-lti-provider/numbas-setup.py
+COPY files/numbas-lti-provider/settings.py /srv/numbas-lti-provider/numbasltiprovider/settings.py
+COPY files/numbas-lti-provider/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh

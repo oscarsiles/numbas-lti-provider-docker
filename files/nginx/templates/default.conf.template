@@ -1,10 +1,3 @@
-upstream backend_hosts {
- server numbas:8700;
- server numbas:8701;
- server numbas:8702;
- server numbas:8703;
-}
-
 server {
     listen 443 ssl;
     client_max_body_size 20M;
@@ -26,7 +19,7 @@ server {
     }
 
     location / {
-        proxy_pass http://backend_hosts;
+        proxy_pass http://daphne:8700;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -40,5 +33,4 @@ server {
         proxy_set_header   X-Forwarded-Proto https;
         proxy_read_timeout 600s;
     }
-
 }
