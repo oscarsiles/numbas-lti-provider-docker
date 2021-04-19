@@ -1,5 +1,9 @@
 ## Docker Compose Recipe for Numbas LTI Tool
 
+### Prerequisites
+
+Install [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) on your server.
+
 ### Setup
 
 * Edit the file `settings.env` and set your server hostname, a unique password for postgres, and a superuser username and password.
