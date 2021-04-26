@@ -30,36 +30,34 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   numbas-setup:
+    env_file:
+      - 'settings.env'
     build: .
     command: /entrypoint.sh
     depends_on:
       - postgres
       - redis
-    env_file:
-      - 'settings.env'
     volumes:
       - numbas:/srv
     working_dir: /srv/numbas-lti-provider/
   workers:
+    env_file:
+      - 'settings.env'
     build: .
     command: /usr/local/bin/python /srv/numbas-lti-provider/manage.py runworker
     depends_on:
       - numbas-setup 
-    env_file:
-      - 'settings.env'
-    environment:
-      - DJANGO_SETTINGS_MODULE=numbasltiprovider.settings
     user: www-data
     volumes:
       - numbas:/srv
     working_dir: /srv/numbas-lti-provider/
   daphne:
+    env_file:
+      - 'settings.env'
     build: . 
     command: /usr/local/bin/daphne numbasltiprovider.asgi:channel_layer --port 8700 --bind 0.0.0.0 -v 2
     depends_on:
       - numbas-setup
-    environment:
-      - DJANGO_SETTINGS_MODULE=numbasltiprovider.settings
     expose:
       - "8700"
     restart: always 
@@ -68,12 +66,12 @@ services:
       - numbas:/srv
     working_dir: /srv/numbas-lti-provider/
   huey:
+    env_file:
+      - 'settings.env'
     build: .
     command: /usr/local/bin/python /srv/numbas-lti-provider/manage.py run_huey
     depends_on:
       - numbas-setup
-    environment:
-      - DJANGO_SETTINGS_MODULE=numbasltiprovider.settings
     restart: always 
     user: www-data
     volumes:

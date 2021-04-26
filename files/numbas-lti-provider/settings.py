@@ -1,17 +1,22 @@
 import os
+import environ
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '{{SECRET_KEY}}'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env('DEBUG')
 
 SESSION_COOKIE_NAME = 'numbas_lti_provider'
 
-ALLOWED_HOSTS = ['{{HOST}}', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [env('SERVERNAME'), '127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -117,7 +122,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'numbas_lti',
         'USER': 'numbas_lti',
-        'PASSWORD': '{{POSTGRES_PASSWORD}}',
+        'PASSWORD': env('POSTGRES_PASSWORD'),
         'HOST': 'postgres',
     }
 }
@@ -192,7 +197,7 @@ DCS_SESSION_COOKIE_SAMESITE = 'None'  # Allow cookies to be set through cross-or
 DCS_CSRF_COOKIE_SAMESITE = 'None'
 
 EMAIL_COMPLETION_RECEIPTS = True
-DEFAULT_FROM_EMAIL = 'numbas@{{HOST}}'
+DEFAULT_FROM_EMAIL = 'numbas@{}'.format(env('SERVERNAME'))
 
 REQUEST_TIMEOUT = 60    # Number of seconds to wait for requests to timeout, such as outcome reports or fetching SCORM packages
 
