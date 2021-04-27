@@ -2,7 +2,8 @@ import os
 import environ
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    LANGUAGE_CODE=(str,'en')
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -150,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = env('LANGUAGE_CODE')
 LOCALE_PATHS = (os.path.join(BASE_DIR,'locale'),)
 
 TIME_ZONE = 'UTC'

@@ -1,12 +1,20 @@
-import numbasltiprovider.settings
+#!/usr/bin/env python
 import os
+import sys
+
+sys.path.append('/srv/numbas-lti-provider')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "numbasltiprovider.settings")
 
 from django.core.management import ManagementUtility
 
-ManagementUtility(['manage.py', 'check']).execute()
+def print_info(message):
+    print("\n\033[32;1;4m"+str(message)+"\033[0m")
+
+print_info("Setting up the database")
 ManagementUtility(['manage.py', 'migrate']).execute()
+
+print_info("Collecting static files")
 ManagementUtility(['manage.py', 'collectstatic','--noinput']).execute()
 
 import django
@@ -25,3 +33,5 @@ except User.DoesNotExist:
 if not superuser.is_superuser:
     superuser.is_superuser = True
     superuser.save()
+
+print_info("The LTI provider is now ready to run!")
