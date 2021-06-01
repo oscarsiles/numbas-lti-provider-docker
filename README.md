@@ -4,6 +4,10 @@ This repository contains a recipe to run the [Numbas LTI tool provider](https://
 
 It contains everything needed to run the Numbas LTI tool in Docker containers.
 
+## Documentation
+
+There's documentation for administrators, instructors and students at [numbas-lti-provider.readthedocs.io](https://numbas-lti-provider.readthedocs.io/).
+
 ## Installation
 
 ### Prerequisites
