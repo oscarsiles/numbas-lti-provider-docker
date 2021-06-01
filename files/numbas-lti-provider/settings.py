@@ -3,7 +3,8 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, False),
-    LANGUAGE_CODE=(str,'en')
+    LOGLEVEL=(str,'WARNING'),
+    LANGUAGE_CODE=(str,'en'),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -73,38 +74,16 @@ TEMPLATES = [
 
 LOGGING = {
     'version': 1,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(asctime)s %(levelname)s %(pathname)s: %(message)s\n'
-        },
-    },
+    'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': [],
-            'level': 'WARNING',
-            'propagate': True,
-        },
-        'numbas_lti': {
-            'handlers': [],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'django_auth_lti': {
-            'handlers': [],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    }
+    'root': {
+        'handlers': ['console'],
+        'level': env('LOGLEVEL').upper(),
+    },
 }
 
 if DEBUG:
