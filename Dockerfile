@@ -13,7 +13,7 @@ RUN chown -R numbas_lti:numbas_lti /srv/numbas-lti-media
 RUN chown -R www-data:www-data /srv/numbas-lti-static
 RUN chmod -R 777 /srv/numbas-lti-media /srv/numbas-lti-static
 
-RUN python3 -m pip install asgi_redis psycopg2 django-environ
+RUN python3 -m pip install asgi_redis==1.4.3 psycopg2==2.8.6 django-environ==0.7.0
 
 ARG VERSION
 RUN git clone https://github.com/numbas/numbas-lti-provider.git /srv/numbas-lti-provider
