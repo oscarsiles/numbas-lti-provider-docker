@@ -1,26 +1,40 @@
+#######################################################################
+# Settings for the Numbas LTI provider
+# For help with this file, see
+#   https://docs.numbas.org.uk/lti/en/latest/installation/settings.html
+#######################################################################
+
 import os
 import environ
 
 env = environ.Env(
-    DEBUG=(bool, False),
-    LOGLEVEL=(str,'WARNING'),
-    LANGUAGE_CODE=(str,'en'),
+    DEBUG = (bool, False),
+    LOGLEVEL = (str,' WARNING'),
+    INSTANCE_NAME = (str, 'Docker'),
+    LANGUAGE_CODE = (str, 'en'),
+    TIME_ZONE = (str, 'UTC'),
+    SUPPORT_NAME = (str, 'the Numbas team'),
+    SUPPORT_URL = (str, None),
+    EMAIL_COMPLETION_RECEIPTS = (bool, False),
+    DEFAULT_FROM_EMAIL = (str,None),
 )
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Show debug information when there are errors?
+# Set this to False when running in production!
+DEBUG = env('DEBUG')
+
+##########################
+# Settings that shouldn't change.
+# You can ignore these, but they must be present.
+##########################
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 SESSION_COOKIE_NAME = 'numbas_lti_provider'
 
-ALLOWED_HOSTS = [env('SERVERNAME'), '127.0.0.1', 'localhost']
-
-# Application definition
+LOGIN_URL = '/login'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,7 +52,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django_cookies_samesite.middleware.CookiesSameSite',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,8 +63,6 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = ['numbas_lti.backends.LTIAuthBackend','django.contrib.auth.backends.ModelBackend']
-
-LTI_INSTRUCTOR_ROLES = ['Instructor','Administrator','ContentDeveloper','Manager','TeachingAssistant']
 
 ROOT_URLCONF = 'numbasltiprovider.urls'
 
@@ -67,10 +78,16 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                'numbas_lti.context_processors.global_settings',
             ],
         },
     },
 ]
+
+ASGI_APPLICATION = 'numbasltiprovider.asgi.application'
+
+# A secret key used for cryptography - this is set by the setup script.
+SECRET_KEY = env('SECRET_KEY')
 
 LOGGING = {
     'version': 1,
@@ -91,26 +108,15 @@ if DEBUG:
     for logger in LOGGING['loggers']:
         LOGGING['loggers'][logger]['handlers'] = ['console']
 
-WSGI_APPLICATION = 'numbasltiprovider.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'numbas_lti',
-        'USER': 'numbas_lti',
-        'PASSWORD': env('POSTGRES_PASSWORD'),
-        'HOST': 'postgres',
-    }
+HUEY = {
+	'huey_class': 'huey.PriorityRedisHuey',
+    'connection': {
+        'host': 'redis',
+        'port': 6379,
+    },
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -126,14 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.9/topics/i18n/
-
-LANGUAGE_CODE = env('LANGUAGE_CODE')
 LOCALE_PATHS = (os.path.join(BASE_DIR,'locale'),)
-
-TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -141,50 +140,90 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-
-MEDIA_ROOT = '/srv/numbas-lti-media/'
 MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/srv/numbas-lti-static/'
+
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
-# Channels
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
+SECURE_SSL_REDIRECT = False
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'None'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+##############################
+# Settings you can change.
+##############################
+
+# The name of this instance.
+# Shown in the footer of most pages.
+INSTANCE_NAME = env('INSTANCE_NAME')
+
+# Which domain names can this server be accessed through?
+ALLOWED_HOSTS = [env('SERVERNAME'), '127.0.0.1', 'localhost']
+
+# Which roles should be interpreted as conferring instructor privileges?
+LTI_INSTRUCTOR_ROLES = ['Instructor','Administrator','ContentDeveloper','Manager','TeachingAssistant']
+
+# Database connection details
+# This is normally set by the setup script.
+# See https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'numbas_lti',
+        'USER': 'numbas_lti',
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': 'postgres',
+    }
+}
+
+# Channels communication layers.
+# This is normally set by the setup script.
+# See https://channels.readthedocs.io/en/stable/topics/channel_layers.html
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.environ.get('REDIS_URL','redis://redis:6379')],
-        },
+        "BACKEND": "asgiref.inmemory.ChannelLayer",
         "ROUTING": "numbasltiprovider.routing.channel_routing",
     },
 }
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# The language to use for the interface.
+# Available languages: 'en' (English), 'de' (German/Deutsch)
+LANGUAGE_CODE = env('LANGUAGE_CODE')
 
-SUPPORT_NAME = 'the Numbas team' # the name of your support contact
-SUPPORT_URL = None  # set to "mailto:your_email_address", or the URL of a page containing contact info
+# The time zone that the server should use to display dates and times.
+# See https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-TIME_ZONE
+TIME_ZONE = env('TIME_ZONE')
 
-SESSION_COOKIE_SAMESITE = None  # Allow cookies to be set through cross-origin POST requests, such as when a resource is embedded in an iframe
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = None  
-CSRF_COOKIE_SECURE = True
-DCS_SESSION_COOKIE_SAMESITE = 'None'  # Allow cookies to be set through cross-origin POST requests, such as when a resource is embedded in an iframe
-DCS_CSRF_COOKIE_SAMESITE = 'None'
+# The filesystem path where media files are stored.
+MEDIA_ROOT = '/srv/numbas-lti-media/'
 
-EMAIL_COMPLETION_RECEIPTS = True
-DEFAULT_FROM_EMAIL = 'numbas@{}'.format(env('SERVERNAME'))
+# The filesystem path where static files are stored.
+STATIC_ROOT = '/srv/numbas-lti-static/'
 
-REQUEST_TIMEOUT = 60    # Number of seconds to wait for requests to timeout, such as outcome reports or fetching SCORM packages
+# The name of your support contact.
+SUPPORT_NAME = env('SUPPORT_NAME')
 
-HUEY = {
-    'connection': {
-        'host': 'redis',
-        'port': 6379,
-    },
-}
+# An address to get support. When there's an error, students will be shown a link to this address.
+# Set to "mailto:your_email_address", or the URL of a page containing contact info.
+# Or set to None if you don't want to show a link.
+SUPPORT_URL = env('SUPPORT_URL')
+
+# Enable sending attempt completion receipts by email?
+EMAIL_COMPLETION_RECEIPTS = env('EMAIL_COMPLETION_RECEIPTS')
+
+# The email address to send emails from.
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+
+# The number of seconds to wait for requests to timeout, such as outcome reports or fetching SCORM packages.
+REQUEST_TIMEOUT = 60
+
+# The number of days after creation to keep report files before deleting them.
+REPORT_FILE_EXPIRY_DAYS = 30
 

@@ -40,37 +40,34 @@ services:
       - numbas:/srv
       - ./files/numbas-lti-provider:/setup-files
     working_dir: /setup-files
-  workers:
-    env_file:
-      - 'settings.env'
-    build: .
-    command: /usr/local/bin/python /srv/numbas-lti-provider/manage.py runworker
-    user: www-data
-    volumes:
-      - numbas:/srv
-    working_dir: /srv/numbas-lti-provider/
   daphne:
     env_file:
       - 'settings.env'
     build: . 
-    command: /usr/local/bin/daphne numbasltiprovider.asgi:channel_layer --port 8700 --bind 0.0.0.0 -v 2
+    command: /usr/local/bin/daphne numbasltiprovider.asgi:application --port 8700 --bind 0.0.0.0 -v 2
+    depends_on:
+      - postgres
+      - redis
     expose:
       - "8700"
     restart: always 
     user: www-data
     volumes:
       - numbas:/srv
-    working_dir: /srv/numbas-lti-provider/
+    working_dir: /opt/numbas-lti-provider
   huey:
     env_file:
       - 'settings.env'
     build: .
-    command: /usr/local/bin/python /srv/numbas-lti-provider/manage.py run_huey
+    command: /usr/local/bin/python /opt/numbas-lti-provider/manage.py run_huey
+    depends_on:
+      - postgres
+      - redis
     restart: always 
     user: www-data
     volumes:
       - numbas:/srv
-    working_dir: /srv/numbas-lti-provider/
+    working_dir: /opt/numbas-lti-provider/
 volumes: 
   pgdata:
   numbas:
