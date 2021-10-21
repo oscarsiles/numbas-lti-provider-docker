@@ -70,6 +70,8 @@ Remake the container images:
 
 ```
 docker-compose build --no-cache numbas-setup
+docker-compose build --no-cache daphne
+docker-compose build --no-cache huey
 ```
 
 Then run the installation script again:
