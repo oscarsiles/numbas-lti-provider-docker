@@ -188,8 +188,10 @@ DATABASES = {
 # See https://channels.readthedocs.io/en/stable/topics/channel_layers.html
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        "ROUTING": "numbasltiprovider.routing.channel_routing",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get('REDIS_URL','redis://redis:6379')],
+        },
     },
 }
 
