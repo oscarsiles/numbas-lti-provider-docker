@@ -103,11 +103,6 @@ LOGGING = {
     },
 }
 
-if DEBUG:
-    # make all loggers use the console.
-    for logger in LOGGING.get('loggers',[]):
-        LOGGING['loggers'][logger]['handlers'] = ['console']
-
 HUEY = {
 	'huey_class': 'huey.PriorityRedisHuey',
     'connection': {
