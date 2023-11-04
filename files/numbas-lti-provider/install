@@ -27,8 +27,8 @@ try:
 except User.DoesNotExist:
     superuser = User.objects.create_superuser(
         SUPERUSER_USER,
-        '{}@{}'.format(os.environ['SUPERUSER_USER'], os.environ['SERVERNAME']),
-        os.environ['SUPERUSER_PASSWORD']
+        f"{os.environ['SUPERUSER_USER']}@{os.environ['SERVERNAME']}",
+        os.environ['SUPERUSER_PASSWORD'],
     )
 if not superuser.is_superuser:
     superuser.is_superuser = True
